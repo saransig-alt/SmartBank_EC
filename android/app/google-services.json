@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "734708733074",
+    "project_id": "smartbank-ec",
+    "storage_bucket": "smartbank-ec.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734708733074:android:90883b4be0b8136375424b",
+        "android_client_info": {
+          "package_name": "com.example.smartbank_ec"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIRx-NxNNqaMK3vsB034GYmarXtIwd9tE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Función auxiliar: verifica que el usuario autenticado sea el dueño
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // Solo lectura/escritura del dueño del perfil
+    match /usuarios/{uid} {
+      // Lectura: solo el dueño puede leer su perfil
+      allow read: if isOwner(uid);
+      
+      // Escritura: solo el dueño puede modificar su perfil
+      // Validación de campos permitidos
+      allow write: if isOwner(uid) && (
+        request.resource.data.keys.hasAll(['nombres', 'apellidos', 'correo', 'telefono', 'numeroCuenta', 'saldo']) &&
+        request.resource.data.keys.size() == 6 &&
+        request.resource.data.nombres is string &&
+        request.resource.data.apellidos is string &&
+        request.resource.data.correo is string &&
+        request.resource.data.telefono is string &&
+        request.resource.data.numeroCuenta is string &&
+        request.resource.data.saldo is number
+      );
+      
+      // Restringir eliminación de perfiles
+      allow delete: if false;
+
+      // Subcolección de transacciones
+      match /transacciones/{txnId} {
+        // Lectura: solo el dueño de las transacciones
+        allow read: if isOwner(uid);
+        
+        // Escritura: solo el dueño crea sus propias transacciones
+        // Validar que los campos requeridos existan
+        allow create: if isOwner(uid) && (
+          request.resource.data.keys.hasAll(['fecha', 'hora', 'tipo', 'monto', 'cuentaOrigen', 'cuentaDestino']) &&
+          request.resource.data.fecha is string &&
+          request.resource.data.hora is string &&
+          request.resource.data.tipo is string &&
+          request.resource.data.monto is number &&
+          request.resource.data.monto > 0 &&
+          request.resource.data.cuentaOrigen is string &&
+          request.resource.data.cuentaDestino is string
+        );
+        
+        // No se pueden modificar ni eliminar transacciones
+        allow update, delete: if false;
+      }
+    }
+  }
+}
