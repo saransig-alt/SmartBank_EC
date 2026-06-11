@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../presentation/providers/bank_provider.dart';
 import '../../presentation/providers/auth_provider.dart';
+import '../../presentation/providers/theme_provider.dart'; // <- Importación agregada
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -42,10 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Icon(Icons.card_giftcard, color: AppColors.accent, size: 28),
               const SizedBox(width: 10),
-              Text(
-                '¡Felicidades!',
-                style: TextStyle(color: textPrimary),
-              ),
+              Text('¡Felicidades!', style: TextStyle(color: textPrimary)),
             ],
           ),
           content: Column(
@@ -106,12 +104,31 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SmartBank EC',
-            style: TextStyle(
-                color: AppColors.accent, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'SmartBank EC',
+          style: TextStyle(
+            color: AppColors.accent,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
+          // ¡Aquí quedó tu botón del Modo Oscuro/Claro integrado!
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return IconButton(
+                tooltip: 'Cambiar tema',
+                onPressed: () {
+                  themeProvider.toggleTheme();
+                },
+                icon: Icon(
+                  themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                  color: AppColors.accent,
+                ),
+              );
+            },
+          ),
           IconButton(
             tooltip: 'Mi Perfil',
             icon: const Icon(Icons.person, color: AppColors.accent),
@@ -127,16 +144,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.of(context).pushReplacementNamed('/login');
               }
             },
-          )
+          ),
         ],
       ),
       body: usuario == null
           ? const Center(
-              child: CircularProgressIndicator(color: AppColors.accent))
+              child: CircularProgressIndicator(color: AppColors.accent),
+            )
           : RefreshIndicator(
               color: AppColors.accent,
               onRefresh: () async {
-                // Los listeners actualizan automáticamente
                 await Future.delayed(const Duration(milliseconds: 500));
               },
               child: SingleChildScrollView(
@@ -148,10 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Saludo
                     Text(
                       'Bienvenido, ${usuario.nombres} ${usuario.apellidos}',
-                      style: TextStyle(
-                        color: textSecondary,
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(color: textSecondary, fontSize: 16),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -164,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // ---- Punto 8: TARJETA DE SALDO ----
+                    // Tarjeta de Saldo
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(24),
@@ -172,15 +186,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         gradient: LinearGradient(
                           colors: [
                             AppColors.surface,
-                            AppColors.surface.withValues(alpha: 0.8)
+                            AppColors.surface.withValues(alpha: 0.8),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                            color: AppColors.accent.withValues(alpha: 0.3),
-                            width: 1),
+                          color: AppColors.accent.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +219,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          // Última actualización
                           Row(
                             children: [
                               Icon(
@@ -227,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // ---- Resumen rápido de movimientos ----
+                    // Resumen rápido de movimientos
                     Row(
                       children: [
                         _ResumenCard(
@@ -256,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // ---- Movimientos recientes ----
+                    // Movimientos recientes
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -301,13 +315,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         final color = isEnviada
                             ? AppColors.error
                             : txn.tipo == 'Bono de Bienvenida'
-                                ? Colors.amber
-                                : AppColors.accent;
+                            ? Colors.amber
+                            : AppColors.accent;
                         final icon = txn.tipo == 'Bono de Bienvenida'
                             ? Icons.card_giftcard
                             : isEnviada
-                                ? Icons.arrow_upward
-                                : Icons.arrow_downward;
+                            ? Icons.arrow_upward
+                            : Icons.arrow_downward;
 
                         return Container(
                           margin: const EdgeInsets.only(bottom: 8),
@@ -365,7 +379,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     const SizedBox(height: 24),
 
-                    // ---- Accesos Rápidos ----
+                    // Accesos Rápidos
                     Text(
                       'Accesos Rápidos',
                       style: TextStyle(
@@ -386,14 +400,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.of(context).pushNamed('/transfer'),
                         ),
                         const SizedBox(width: 12),
-
-                        const SizedBox(width: 12),
                         _QuickActionButton(
                           icon: Icons.camera_alt,
                           label: 'Escanear QR',
                           color: AppColors.accent,
-                          onTap: () =>
-                              Navigator.of(context).pushNamed('/scan'),
+                          onTap: () => Navigator.of(context).pushNamed('/scan'),
                         ),
                       ],
                     ),
@@ -405,7 +416,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-/// Tarjeta pequeña de resumen de movimientos (enviado, recibido, depósitos)
 class _ResumenCard extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -443,10 +453,7 @@ class _ResumenCard extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               label,
-              style: TextStyle(
-                color: AppColors.textSub(context),
-                fontSize: 10,
-              ),
+              style: TextStyle(color: AppColors.textSub(context), fontSize: 10),
             ),
           ],
         ),
@@ -455,7 +462,6 @@ class _ResumenCard extends StatelessWidget {
   }
 }
 
-/// Botón de acceso rápido en la parte inferior
 class _QuickActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -480,7 +486,8 @@ class _QuickActionButton extends StatelessWidget {
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-                color: AppColors.textSecondary.withValues(alpha: 0.2)),
+              color: AppColors.textSub(context).withValues(alpha: 0.2),
+            ),
           ),
           child: Column(
             children: [
@@ -488,10 +495,7 @@ class _QuickActionButton extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 label,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: AppColors.text(context), fontSize: 12),
               ),
             ],
           ),
